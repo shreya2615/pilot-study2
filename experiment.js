@@ -2,7 +2,7 @@
 
 const jsPsych = initJsPsych({
   on_finish: () => {
-    fetch("https://script.google.com/macros/s/AKfycbxlf2qo2q94se7bWowfgxKXQSXE1Ll3wKmXWvmCv-8cBU8YguYzTcbh2-KxNUvGsoTUQg/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbxzPklurYALYE3tjlsZLMwgEigoGAAXmCzSslj1e_Qi/dev", {
       method: "POST",
       body: JSON.stringify(jsPsych.data.get().values())
     });
