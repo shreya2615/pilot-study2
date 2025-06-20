@@ -2,7 +2,7 @@
 
 const jsPsych = initJsPsych({
   on_data_update: () => {
-    fetch("https://script.google.com/macros/s/AKfycbzc6mZpPS9KdHezcaG8ngWS03nBTCIF1WlOMsetD2O-pEMS0KjyJRcH-aOlXOZ6W9qc/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbxhglWnRLZFKbjwed-W_aRF4FKVwT0Z8rFRnbrEA-uHsTNHaa7lzixzRYOK5qYsKHQP/exec", {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "application/json" },
@@ -13,6 +13,7 @@ const jsPsych = initJsPsych({
 
 const group = jsPsych.randomization.sampleWithoutReplacement(["male", "female"], 1)[0];
 const participantID = jsPsych.data.getURLVariable("id") || Math.floor(Math.random() * 10000);
+jsPsych.data.addProperties({ participantID: participantID });
 const blockOrders = [["a", "b", "c"], ["b", "c", "a"], ["c", "a", "b"]];
 const blockOrder = blockOrders[participantID % 3];
 
