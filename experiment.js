@@ -22,18 +22,18 @@ const audioBlocks = { a: [1, 2, 3, 4, 5, 6], b: [7, 8, 9, 10, 11, 12, 13], c: [1
 const facePairs = [[2, 1], [3, 1], [3, 2], [5, 4], [6, 4], [6, 5]];
 const audioPairs = [[2, 1], [3, 1], [3, 2]];
 const questions = [
-  "Who do you think is more dominant?",
-  "Who do you think is more trustworthy?",
-  "Who do you think is more honest?",
-  "Who do you think is taller?"
+  "1. Who do you think is more dominant?",
+  "2. Who do you think is more trustworthy?",
+  "3. Who do you think is more honest?",
+  "4. Who do you think is taller?"
 ];
 
 const consent = {
   type: jsPsychHtmlKeyboardResponse,
   stimulus: `<h2>Consent Form</h2><p>By participating, you agree to take part in this study.</p>
-    <p><strong>Please complete this form before proceeding:</strong><br>
+    <p><strong>Please complete this form before proceeding, once completed please return to this page:</strong><br>
     <a href="https://docs.google.com/forms/d/e/1FAIpQLSekKKNoYVKAJmO7hAJdm-faJbXRo3Yv8LbsFzgvLKDzFORfvg/viewform?usp=header" target="_blank">Click here</a></p>
-    <p>Press SPACE to continue.</p>`,
+    <p>Once the form is completed press SPACE to continue if you have consented to participate, if not please exit this screen now.</p>`,
   choices: [' ', '0'],
   on_finish: data => { if (data.response === 48) jsPsych.endExperiment("You chose not to participate."); }
 };
