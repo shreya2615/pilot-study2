@@ -1,12 +1,12 @@
 // Initialize Firebase (put at the top of experiment.js)
 const firebaseConfig = {
-  apiKey: "AIzaSyCBr9qbeKaCc32V1Ev_CQFDD6wpSTuZeps",
-  authDomain: "pilot-study-3.firebaseapp.com",
-  databaseURL: "https://pilot-study-3-default-rtdb.firebaseio.com",
-  projectId: "pilot-study-3",
-  storageBucket: "pilot-study-3.firebasestorage.app",
-  messagingSenderId: "803701219913",
-  appId: "1:803701219913:web:681e6ae2520ad6cbc85598"
+  apiKey: "AIzaSyBeS5cpBQ-hniexN4urdqMkMiGPKZiqj2k",
+  authDomain: "pilot-study2.firebaseapp.com",
+  databaseURL: "https://pilot-study2-default-rtdb.firebaseio.com",
+  projectId: "pilot-study2",
+  storageBucket: "pilot-study2.firebasestorage.app",
+  messagingSenderId: "645327983730",
+  appId: "1:645327983730:web:eddc5ac2b37e21e3aa5eeb"
 };
 
 firebase.initializeApp(firebaseConfig);
