@@ -1,173 +1,360 @@
-// === Audio Trial with Sequential Questions Under Same Screen ===
+// Load Firebase SDKs dynamically
+const loadFirebaseScripts = async () => {
+  const appScript = document.createElement('script');
+  appScript.src = "https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js";
+  document.head.appendChild(appScript);
+  await new Promise(resolve => appScript.onload = resolve);
 
-const jsPsych = initJsPsych({
-  on_data_update: () => {
-    fetch("https://script.google.com/macros/s/AKfycbxhglWnRLZFKbjwed-W_aRF4FKVwT0Z8rFRnbrEA-uHsTNHaa7lzixzRYOK5qYsKHQP/exec", {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(jsPsych.data.get().values())
-    });
-  }
-});
-
-const group = jsPsych.randomization.sampleWithoutReplacement(["male", "female"], 1)[0];
-const participantID = jsPsych.data.getURLVariable("id") || Math.floor(Math.random() * 10000);
-jsPsych.data.addProperties({ participantID: participantID });
-const blockOrders = [["a", "b", "c"], ["b", "c", "a"], ["c", "a", "b"]];
-const blockOrder = blockOrders[participantID % 3];
-
-const imageBlocks = { a: [1, 2, 3], b: [4, 5, 6], c: [7, 8, 9, 10] };
-const audioBlocks = { a: [1, 2, 3, 4, 5, 6], b: [7, 8, 9, 10, 11, 12, 13], c: [14, 15, 16, 17, 18, 19, 20] };
-const facePairs = [[2, 1], [3, 1], [3, 2], [5, 4], [6, 4], [6, 5]];
-const audioPairs = [[2, 1], [3, 1], [3, 2]];
-const questions = [
-  "1. Who do you think is more dominant?",
-  "2. Who do you think is more trustworthy?",
-  "3. Who do you think is more honest?",
-  "4. Who do you think is taller?"
-];
-
-const consent = {
-  type: jsPsychHtmlKeyboardResponse,
-  stimulus: `<h2>Consent Form</h2><p>By participating, you agree to take part in this study.</p>
-    <p><strong>Please complete this form before proceeding, once completed please return to this page:</strong><br>
-    <a href="https://docs.google.com/forms/d/e/1FAIpQLSekKKNoYVKAJmO7hAJdm-faJbXRo3Yv8LbsFzgvLKDzFORfvg/viewform?usp=header" target="_blank">Click here</a></p>
-    <p>Once the form is completed press SPACE to continue if you have consented to participate, if not please exit this screen now.</p>`,
-  choices: [' ', '0'],
-  on_finish: data => { if (data.response === 48) jsPsych.endExperiment("You chose not to participate."); }
+  const firestoreScript = document.createElement('script');
+  firestoreScript.src = "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js";
+  document.head.appendChild(firestoreScript);
+  await new Promise(resolve => firestoreScript.onload = resolve);
 };
 
-const instructions = {
+// Initialize Firebase after scripts are loaded
+const initFirebase = () => {
+  const firebaseConfig = {
+    apiKey: "AIzaSyBeS5cpBQ-hniexN4urdqMkMiGPKZiqj2k",
+    authDomain: "pilot-study2.firebaseapp.com",
+    projectId: "pilot-study2",
+    storageBucket: "pilot-study2.firebasestorage.app",
+    messagingSenderId: "645327983730",
+    appId: "1:645327983730:web:eddc5ac2b37e21e3aa5eeb"
+  };
+  firebase.initializeApp(firebaseConfig);
+  return firebase.firestore();
+};
+
+const jsPsych = initJsPsych({
+  show_progress_bar: true,
+  auto_update_progress_bar: true
+});
+
+
+const instructions_exp = {
   type: jsPsychHtmlKeyboardResponse,
-  stimulus: `<p>The study will proceed in 3 blocks. In each block you will first see pairs of images followed by 4 questions for each pair. Then, you will see pairs of audios followed by 4 questions for each pair.</p>
-    <p>Use keys 1 or 2 to respond. Press SPACE to begin the experiment.</p>`,
+  stimulus: `
+    <h2>Welcome to this experiment</h2>
+    <p>In this study, you will be asked to imagine four different scenarios where you are presented with four job postings from companies looking to hire an employee.</p>
+    <p>Each job posting receives six different applications from individuals who have applied for the role. Your task is to read through each applicant profile, then rate how likely you are on a scale of 1-7 to shortlist each applicant for an interview and rank them based on how well you think they fit the position.</p> 
+    <p>This study will take approximately <strong>15 minutes</strong> to complete. Please respond as thoughtfully and accurately as possible.</p>
+    <p>If you wish to stop at any point, simply close this page and your data will not be recorded.</p>
+    <p>Press <strong>SPACE</strong> to begin the study.</p>
+  `,
   choices: [' ']
 };
 
-let timeline = [consent, instructions];
+const ceoScenario1 = {
+  name: "CEO Scenario 1",
+  data: { scenario: "CEO", version: 1 },
+  jobDescription: `
+    <h2>Job Posting: Chief Executive Officer (CEO)</h2>
+    <p><strong>Location:</strong> Toronto, ON</p>
+    <p><strong>About the Company:</strong> NovaLink is a tech firm, with a team of 5000 employees, that builds smart software to help companies manage their supply chains. We’ve grown across North America and are now preparing to expand into Europe. At the same time, we’re dealing with a hostile takeover attempt from a U.S. competitor. We want to remain independent and grow internationally, without losing our focus or team stability. We are looking for a new CEO to help navigate these challenges and opportunities.</p>
+  `,
+  candidates: [
+    {
+      name: "Richard",
+      description: `In my last role, I oversaw expansion of the company into Germany and the Netherlands. I speak German and have a network of contacts in both countries.  Shortly after initiating the expansion, we were confronted by an aggressive takeover attempt. I worked directly with the board and our lawyers, investors, and regulators to fend off the aggression and safeguard shareholder value, while also keeping focus on our long-term corporate goals. I keep people calm and grounded when things heat up.`
+    },
+    {
+      name: "Neil",
+      description: `In my most recent leadership position, I helped guide a company through a hostile takeover attempt. It was a stressful and uncertain time, but I kept the leadership team aligned and worked closely with our lawyers, investors, and regulators to protect the company’s interests. I try to keep people informed and moving forward when the pressure is on. In a previous position I was the VP in charge of acquisitions and navigated several successful mergers and takeovers for a large multinational company.`
+    },
+    {
+      name: "Scott",
+      description: `I have successfully led the launch of software technology products in Europe as the vice president of a multinational company. I also helped set up our first offices and client networks in both Germany and Spain. I am fully conversant in German and French, and I know how to effectively navigate cultural and regulatory differences in various contexts. I’m excited about helping companies grow across borders and I like being the person who connects the dots between people and markets.`
+    },
+    {
+      name: "John",
+      description: `I have successfully led corporate organizations through intense and challenging internal changes, including board turnover and investor turmoil, while helping the company maintain steady focus and consistently grow profits over time. I have also worked very closely with legal teams on contract disputes, negotiations, and restructuring plans. What I bring to the table is the ability to keep a company calm, collected, and focused while things shift around them.`
+    },
+    {
+      name: "Derek",
+      description: `My leadership experience includes opening offices and establishing key partnerships in several major Asian markets, including China and South Korea, for a multinational technology company. I am fluent in Mandarin and have helped local teams effectively adjust to new evolving regulations while building long-term relationships in those specific regions. I am fully accustomed to managing time zones and cultural differences, and I truly enjoy bringing global teams together.  `
+    },
+    {
+      name: "Michael",
+      description: `In my last position, I served as the lead vice president in charge of managing the business through a major internal restructuring process that followed a large-scale corporate merger. My responsibilities included integrating cross functional teams, aligning operations, finding cost efficiencies, and working through overlapping leadership roles. I have worked extensively across North America, and I tend to approach leadership with a steady, systems-based, and solution-oriented mindset.`
+    }
+  ]
+};
 
-blockOrder.forEach(blockKey => {
-  const faceNums = imageBlocks[blockKey];
-  const audioNums = audioBlocks[blockKey];
+const ceoScenario2 = {
+  name: "CEO Scenario 2",
+  data: { scenario: "CEO", version: 2 },
+  jobDescription: `
+    <h2>Job Posting: Chief Executive Officer (CEO)</h2>
+    <p><strong>Location:</strong> Vancouver, BC</p>
+    <p><strong>About the Company:</strong> GreenPath develops software to help other companies track and reduce their environmental impact in Canada and Europe. We’ve grown quickly to a team of 500, but that growth has created new pressures. We’ve fallen behind in updating our tools and platforms to keep up with new climate regulations, particularly in Europe.  Furthermore, our switch back from remote to in-office mode after the COVID lockdowns has left some staff dissatisfied and unheard. We now want to consolidate and focus on doing two things better: staying ahead of environmental standards and making GreenPath a more connected and desirable place to work. We are looking for a new CEO to help us achieve these goals.</p>
+  `,
+  candidates: [
+    {
+      name: "Thomas",
+      description: `As vice president of a multinational green tech company, I led system updates in Germany and France to help clients comply with new EU climate regulations. Around the same time, COVID restrictions forced a shift to remote work, which caused isolation, low morale, and a loss of shared purpose. I implemented several initiatives to address these challenges, resulting in an 87% increase in retention and a 73% boost in job satisfaction over the next three years. To me, leadership means being steady, compassionate, empathetic, and mission focused. I still bike to work and strive to live by the values we promote.`
+    },
+    {
+      name: "Peter",
+      description: `After serving in a number of senior leadership roles within private industry, I currently lead the government agency responsible for overseeing the development, coordination, and implementation of environmental regulations for the European Union. This position requires not only deep knowledge of high-level strategy and regulatory guidelines, but also a detailed understanding of the political nuances, compliance challenges, and operational complexities of individual member countries. I am now looking to return to the private sector to leverage my insider expertise to help companies better understand and navigate evolving European environmental standards.`
+    },
+    {
+      name: "James",
+      description: `I was appointed VP head of human resources while my current company was struggling with low morale and employee retention. My approach was to empathize and view the situation from the employee’s perspective. I initiated steps to make the employees feel heard at every level. This led to the opening of corporate daycare facilities and encouraging flexible hours. We also initiated regular company retreats to reinforce team cohesion. After three years our employee retention rate is 95% and corporate morale at an all-time high. I believe engaged, motivated employees are essential to long-term success and overall profitability.`
+    },
+    {
+      name: "Brian",
+      description: `I have held leadership positions at the vice president level in both marketing and finance across several well-established multinational corporations. In my marketing role, we successfully increased U.S. market share by 12% over a two-year period. In the finance position, I implemented strategic measures to reduce company debt and boost shareholder equity, which ultimately resulted in a 54% increase in our stock value. I consider myself a well-rounded, seasoned corporate executive with a strong track record of results who can position your organization for sustained growth and long-term profitability.`
+    },
+    {
+      name: "Greg",
+      description: `I am a software engineer by training and have led large teams over the last two decades.  In my current position as VP for innovation and development for an American high-tech company I lead teams that develop software for a range of applications but with a specialization in satellite monitoring and ballistic trajectories.  Our major clients are the US government and the Pentagon.  This role has given me considerable experience in dealing with government regulations and how to respond to them quickly and effectively.`
+    },
+    {
+      name: "Martin",
+      description: `I specialize in growing midsize companies through strategic acquisitions and post-merger integration.  In my most recent position as CEO of a security software company, we expanded the organization from 350 employees to 1,500 within just three years. This rapid growth was primarily achieved through the successful acquisition of three companies based in South Korea, Hong Kong, and Japan.  Following the acquisitions, we carefully shed redundancies and consolidated operations to streamline efficiency, emerging as a more competitive and profitable organization. I focus on growth through strategic acquisition and integration.`
+    }
+  ]
+};
 
-  // IMAGE TRIALS
-  faceNums.forEach(faceNum => {
-    const faceID = faceNum.toString().padStart(2, "0");
-    facePairs.forEach(([v1, v2]) => {
-      const img1 = `${group}_face${faceID}_${v1}.png`;
-      const img2 = `${group}_face${faceID}_${v2}.png`;
-      questions.forEach((question, index) => {
-        timeline.push({
-          type: jsPsychHtmlKeyboardResponse,
-          stimulus: `
-            <p style='font-size:12px;'>BLOCK: ${blockKey.toUpperCase()} (Image)</p>
-            <p><b>Review both images and answer the questions below:</b></p>
-            <div style='display:flex; justify-content:space-around;'>
-              <img src='all_images/${img1}' height='200'>
-              <img src='all_images/${img2}' height='200'>
-            </div>
-            <p><strong>${question}</strong></p>
-            <p>Press 1 for the left image or 2 for right image.</p>
-          `,
-          choices: ['1', '2'],
-          data: {
-            modality: "image",
-            image_left: img1,
-            image_right: img2,
-            question: question,
-            question_index: index + 1,
-            face_number: faceNum,
-            group: group,
-            block: blockKey
-          }
+const eceScenario1 = {
+  name: "ECE Scenario 1",
+  data: { scenario: "ECE", version: 1 },
+  jobDescription: `
+    <h2>Job Posting: Early Childhood Educator (ECE)</h2>
+    <p><strong>Location:</strong> Toronto, ON</p>
+    <p><strong>About the Company:</strong> Little Steps Early Learning Centre is a large, multi-centre daycare located in various parts of the Greater Toronto Area. Our downtown Toronto centre currently serves 45 children with a team of 8 dedicated staff members. Recently, the centre has been facing increasing challenges related to (i) staff adopting to new curriculum regulations and (ii) classroom management and disruptive behaviour. As a result, the centre is seeking an Early Childhood Educator (ECE) who can provide a firm lead to staff and navigate both staff and classroom conflict effectively.</p>
+  `,
+  candidates: [
+    {
+      name: "Jess (ECE, UofT)",
+      description: `I have worked as a daycare supervisor in the city for the past five years, managing classroom dynamics, staff, and behavioural difficulties. When our center adopted a new play-based curriculum, I supported staff by facilitating planning sessions and sharing strategies that made the shift feel manageable and aligned with their teaching styles. As a supervisor I’ve also managed incidents between children involving disruptive behaviours during class time. By implementing firm and consistent expectations, I was able to prevent further outbursts.`
+    },
+    {
+      name: "Mary (ECE, UofT)",
+      description: `For the past three years, I have worked as a staff lead at a preschool where I take pride in fostering a positive team culture rooted in accountability, communication, and respect. This focus on team culture has shaped how I support staff through change and new initiatives. As we adopted changes in the curriculum, I collaborated with staff to create simple templates and provide hands-on support. This helped reduce stress and misunderstanding and facilitated greater consistency across classrooms.`
+    },
+    {
+      name: "Sarah (ECE, UofT)",
+      description: `I have worked for four years as an educator at a childcare centre in Etobicoke, where I efficiently manage the classroom. I’ve supported classrooms facing disruptive behaviors by modeling calm, consistent responses and working closely with educators to develop shared strategies. When disagreements arise between children, I help them explore fair ways to share or take turns. I’ve found that encouraging empathy prevents miscommunication while teaching valuable social skills. I also support team dynamics by encouraging open dialogue and stepping in early to prevent issues from escalating. `
+    },
+    {
+      name: "Amy (BA, UofT)",
+      description: `I’ve spent the past three years working as a receptionist at a drop-in children’s program. During this time, I have interacted with and developed meaningful connections with families. I have observed educators as they led children’s activities and managed various behavioural challenges. I am currently pursuing a degree in Early Childhood Education and am eager to take the next step in this field. I would love the opportunity to apply my knowledge and gain hands-on experience working directly with children.`
+    },
+    {
+      name: "Alyssa (ECE, UofT)",
+      description: `I have spent the last four years working as a preschool educator. To manage disruptive behaviors, I enjoy creating a calm and predictable learning environment. I stick to tried-and-true strategies that have worked well in the past for me. For example, when two children are arguing over a toy, I calmly step in to help them express their feelings and guide them toward finding a fair solution. I value open communication and always try to understand each child’s perspective.`
+    },
+    {
+      name: "Rebecca (ECE, UofT)",
+      description: `I have three years of experience working as an educator at a learning centre in downtown Toronto. In that role, I guided children through daily activities to support their learning and development. I worked closely with children to build routines that encouraged engagement and confidence. For instance, I regularly led circle time activities, prompting children to participate in games and sing-alongs. Outside of work, I coach a youth soccer team and have received recognition for leading the most improved team.`
+    }
+  ]
+};
+
+const eceScenario2 = {
+  name: "ECE Scenario 2",
+  data: { scenario: "ECE", version: 2 },
+  jobDescription: `
+    <h2>Job Posting: Early Childhood Educator (ECE)</h2>
+    <p><strong>Location:</strong> Vancouver, BC</p>
+    <p><strong>About the Company:</strong> Early Minds Academy is a large, multi-centre daycare located in various parts of the Greater Vancouver Area. Our downtown Vancouver centre currently serves 45 children with a team of 8 dedicated staff members. At this time, the centre is in the process of enhancing its program to align more closely with child-centered approaches that prioritize emotional development and interpersonal learning. As a result, the centre is seeking an Early Childhood Educator (ECE) who is warm, nurturing, and emotionally attuned. The ideal candidate will foster close relationships with children and families and have a strong passion for learning.</p>
+  `,
+  candidates: [
+    {
+      name: "Veronica (ECE, UBC)",
+      description: `I have worked at a daycare in the city for the past four years. I’ve come to understand that every child has their own unique needs and establish rapport accordingly. For children who need more support, I provide one-on-one attention or adapt activities to cater to their level of development. I love speaking with parents about how their child’s day went, whether it was full of laughter or included a few bumps along the way.`
+    },
+    {
+      name: "Maya (ECE, UBC)",
+      description: `For the past three years, I have worked at a preschool where I feel honoured to be part of the children’s developmental milestones. I value the importance of clear communication, and I like to host a monthly ‘family morning’ where parents and children can join in on a circle time activity and parents chat informally about their child’s progress. Outside of work, I regularly take professional development courses that I can apply to my own role, as I strongly believe in the value of continual growth.`
+    },
+    {
+      name: "Clara (ECE, UBC)",
+      description: `For the past three years, I’ve worked as a private babysitter for two different families. In these roles, I focused on supporting emotional development by using practical strategies. When any of the children would get upset after losing a game or being told “no”, I would offer simple strategies like counting to ten or taking deep breaths.  I focus on incorporating evidence-based approaches into my work and enjoy staying up to date with current research to support children’s development.`
+    },
+    {
+      name: "Julia (BA, UBC)",
+      description: `I spent the past two years working in toddler and preschool classrooms. In these roles, my main focus was helping to plan activities and maintain structured routines for the lead educators to follow. As an activity planner, I communicated effectively with lead educators to develop cohesive daily routines and have maintained contact with many of them even after my contract ended. I highly value continual growth and am always researching new activities that maximize children’s learning and health development.`
+    },
+    {
+      name: "Zoe (ECE, UBC)",
+      description: `I have spent the last four years working as a play-based educator. My favourite part about being an educator is the novelty of each day. I love seeing where each child’s curiosity takes us, whether it’s coming up with a new science experiment or exploring a new art technique - whatever keeps everyone engaged and learning. I also have a strong interest in storytelling and music, which I often bring into the classroom to spark imagination and engage children in new ways.`
+    },
+    {
+      name: "Naomi (ECE, UBC)",
+      description: `I have four years of experience working as a classroom assistant, helping implement learning activities and supporting daily routines. I make the effort to speak with parents informally during drop-off and pickup, and I appreciate how these interactions can help build trust over time. I’ve also volunteered at local community events, allowing me to collaborate with different age groups and support environments that bring people together. These are values I hope to bring into my work with children and their families.`
+    }
+  ]
+};
+
+
+// Function to create the rating and ranking trial for each scenario
+function createTrialWithRatingsAndRanking(scenario) {
+  const candidateCount = scenario.candidates.length;
+
+  // Candidate profiles + Likert rating blocks
+  const candidateSections = scenario.candidates.map((c, i) => {
+    const id = c.name.replace(/\s+/g, '');
+    return `
+      <div style="margin-bottom: 30px;">
+        <strong>${i + 1}. ${c.name}</strong><br>
+        <p>${c.description}</p>
+        <label for="rating_${id}"><strong>How likely are you to shortlist this applicant for an interview? (1 = Very Unlikely, 7 = Very Likely)</strong></label><br>
+        <input 
+          type="range" 
+          id="rating_${id}" 
+          name="rating_${id}" 
+          min="1" 
+          max="7" 
+          step="1" 
+          style="width: 60%; display: block; margin: 0 auto;"
+        >
+        <div style="display: flex; justify-content: space-between; padding: 0 4px; font-weight: bold; width: 60%; margin: 0 auto;">
+          <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // Ranking input section
+  const rankingInputs = scenario.candidates.map(c => {
+    const id = c.name.replace(/\s+/g, '');
+    return `
+      <label for="rank_${id}">${c.name}:</label>
+      <input type="number" id="rank_${id}" name="rank_${id}" min="1" max="${candidateCount}" required><br><br>
+    `;
+  }).join("");
+
+  const htmlBlock = `
+    ${candidateSections}
+    <hr>
+    <p><strong>Ranking Task:</strong> Please rank the applicants from 1 (best fit) to ${candidateCount} (least fit). Please assign a unique rank number to each applicant.</p>
+    ${rankingInputs}
+    <button id="customSubmit" type="button">Submit</button>
+    <div id="errorMsg" style="color:red; font-weight:bold;"></div>
+  `;
+
+  // Then in your trial object:
+
+  return {
+    type: jsPsychSurveyHtmlForm,
+    preamble: scenario.jobDescription + "<hr><h3>Applicants:</h3>",
+    html: htmlBlock,
+    data: scenario.data,
+    on_load: function() {
+
+        // 1. Try removing the button immediately (in case it’s already there)
+        const tryRemoveButton = () => {
+            const defaultBtn = document.querySelector('.jspsych-btn');
+            if (defaultBtn) defaultBtn.remove();
+        };
+
+        tryRemoveButton(); // run immediately
+
+        // 2. Then observe future mutations in case button is added late
+        const observer = new MutationObserver((mutations, obs) => {
+            tryRemoveButton();
         });
-      });
-    });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        // 3. Form logic for validation
+        const btn = document.getElementById("customSubmit");
+        const form = document.querySelector("form");
+        const errorMsg = document.getElementById("errorMsg");
+
+        btn.addEventListener("click", () => {
+            const formData = new FormData(form);
+            const ranks = [];
+
+            for (let [key, val] of formData.entries()) {
+                if (key.startsWith("rank_")) {
+                    ranks.push(Number(val));
+                }
+            }
+
+            const uniqueRanks = new Set(ranks);
+            const expected = [...Array(candidateCount)].map((_, i) => i + 1);
+
+            if (ranks.some(val => isNaN(val))) {
+                errorMsg.textContent = "Please enter a valid numeric rank for each candidate.";
+                return;
+            }
+
+            if (uniqueRanks.size !== ranks.length) {
+                errorMsg.textContent = "Each candidate must have a unique rank. Please check your responses.";
+                return;
+            }
+
+            if (!expected.every(num => ranks.includes(num))) {
+                errorMsg.textContent = `Please use each number from 1 to ${candidateCount} exactly once.`;
+                return;
+            }
+
+            // Validation passed: clear error and finish trial manually
+            errorMsg.textContent = "";
+            observer.disconnect(); // stop watching for button
+            jsPsych.finishTrial({ ...scenario.data, responses: Object.fromEntries(formData.entries()) });
+        });
+    },
+  };
+}
+
+const allScenarios = [ceoScenario1, ceoScenario2, eceScenario1, eceScenario2];
+const randomizedScenarios = jsPsych.randomization.shuffle(allScenarios);
+const allCombinedTrials = randomizedScenarios.map(createTrialWithRatingsAndRanking);
+
+// Add your instructions and then these trials to timeline
+let timeline = [];
+
+(async () => {
+  await loadFirebaseScripts();
+  const db = initFirebase();
+
+  const participant_id = jsPsych.randomization.randomID(10);
+
+  // Inject db and id into each trial that logs
+  const wrappedTrials = allCombinedTrials.map(trial => {
+    const original_on_load = trial.on_load;
+    trial.on_load = function () {
+      if (original_on_load) original_on_load();
+
+      const original_finishTrial = jsPsych.finishTrial;
+      jsPsych.finishTrial = function (data) {
+        // Restore finishTrial to prevent duplicate wrap
+        jsPsych.finishTrial = original_finishTrial;
+
+        const trialData = {
+          participant_id,
+          scenario: data.scenario,
+          responses: data.responses,
+          timestamp: new Date().toISOString()
+        };
+
+        db.collection("participant_responses").add(trialData)
+          .then(() => {
+            original_finishTrial(data);
+          })
+          .catch(error => {
+            console.error("Firebase write error:", error);
+            original_finishTrial(data);
+          });
+      };
+    };
+    return trial;
   });
 
-  // AUDIO TRIALS
-  audioNums.forEach(audioNum => {
-    const audioID = audioNum.toString().padStart(2, "0");
-    audioPairs.forEach(([p1, p2]) => {
-      const audio1File = `all_audios/${group}_voice${audioID}_pitch${p1}.wav`;
-      const audio2File = `all_audios/${group}_voice${audioID}_pitch${p2}.wav`;
+  let timeline = [instructions_exp, ...wrappedTrials, {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+      <h2>Thank you for participating!</h2>
+      <p>Your responses have been recorded.</p>
+      <p>You may now close this window.</p>
+    `,
+    choices: "NO_KEYS",
+    trial_duration: 5000
+  }];
 
-      timeline.push({
-        type: jsPsychHtmlKeyboardResponse,
-        stimulus: `
-          <div style="text-align:center;">
-            <p style="font-size:12px;">BLOCK: ${blockKey.toUpperCase()} (Audio)</p>
-            <p><strong>Please play both audios and liste carefully. Questions will appear below after both are played.</strong></p>
-            <div style="display: flex; justify-content: center; gap: 50px;">
-              <audio id="audio1" controls><source src="${audio1File}" type="audio/wav"></audio>
-              <audio id="audio2" controls><source src="${audio2File}" type="audio/wav"></audio>
-            </div>
-            <div id="question-box" style="margin-top:30px;"></div>
-            <p id="instructions" style="margin-top:20px;"></p>
-          </div>
-        `,
-        choices: "NO_KEYS",
-        on_load: () => {
-          const a1 = document.getElementById("audio1");
-          const a2 = document.getElementById("audio2");
-          const box = document.getElementById("question-box");
-          const instr = document.getElementById("instructions");
-          let done1 = false, done2 = false;
-          let currentQ = 0;
-          let responses = [];
-
-          const showNextQuestion = () => {
-            if (currentQ < questions.length) {
-              box.innerHTML = `<p><strong>${questions[currentQ]}</strong></p><p>Press 1 or 2</p>`;
-              jsPsych.pluginAPI.getKeyboardResponse({
-                callback_function: info => {
-                  responses.push({
-                    question: questions[currentQ],
-                    response: info.key,
-                    rt: info.rt
-                  });
-                  currentQ++;
-                  showNextQuestion();
-                },
-                valid_responses: ['1', '2'],
-                rt_method: 'performance',
-                persist: false,
-                allow_held_key: false
-              });
-            } else {
-              jsPsych.finishTrial({
-                modality: "audio",
-                audio_left: audio1File,
-                audio_right: audio2File,
-                audio_number: audioNum,
-                block: blockKey,
-                group: group,
-                responses: responses
-              });
-            }
-          };
-
-          const checkReady = () => {
-            if (done1 && done2) {
-              instr.innerHTML = "You may now begin answering. Press 1 for the left audio or 2 for the right audio.";
-              showNextQuestion();
-            }
-          };
-
-          a1.addEventListener("ended", () => { done1 = true; checkReady(); });
-          a2.addEventListener("ended", () => { done2 = true; checkReady(); });
-        }
-      });
-    });
-  });
-});
-
-timeline.push({
-  type: jsPsychHtmlKeyboardResponse,
-  stimulus: `<h2>Thank you for participating!</h2><p>Your responses have been recorded. You may now close this window.</p>`,
-  choices: "NO_KEYS",
-  trial_duration: 5000
-});
-
-jsPsych.run(timeline);
+  jsPsych.run(timeline);
+})();
