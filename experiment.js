@@ -1,33 +1,47 @@
-// Load Firebase SDKs dynamically
-const loadFirebaseScripts = async () => {
-  const appScript = document.createElement('script');
-  appScript.src = "https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js";
-  document.head.appendChild(appScript);
-  await new Promise(resolve => appScript.onload = resolve);
 
-  const firestoreScript = document.createElement('script');
-  firestoreScript.src = "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js";
-  document.head.appendChild(firestoreScript);
-  await new Promise(resolve => firestoreScript.onload = resolve);
+// ==== Firebase Config & Init (MUST BE FIRST!) ====
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBeS5cpBQ-hniexN4urdqMkMiGPKZiqj2k",
+  authDomain: "pilot-study2.firebaseapp.com",
+  projectId: "pilot-study2",
+  storageBucket: "pilot-study2.firebasestorage.app",
+  messagingSenderId: "645327983730",
+  appId: "1:645327983730:web:eddc5ac2b37e21e3aa5eeb"
 };
 
-// Initialize Firebase after scripts are loaded
-const initFirebase = () => {
-  const firebaseConfig = {
-    apiKey: "AIzaSyBeS5cpBQ-hniexN4urdqMkMiGPKZiqj2k",
-    authDomain: "pilot-study2.firebaseapp.com",
-    projectId: "pilot-study2",
-    storageBucket: "pilot-study2.firebasestorage.app",
-    messagingSenderId: "645327983730",
-    appId: "1:645327983730:web:eddc5ac2b37e21e3aa5eeb"
-  };
-  firebase.initializeApp(firebaseConfig);
-  return firebase.firestore();
-};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const participant_id = jsPsych.randomization.randomID(10);
+
+// ==== jsPsych Initialization ====
 
 const jsPsych = initJsPsych({
   show_progress_bar: true,
-  auto_update_progress_bar: true
+  auto_update_progress_bar: true,
+  on_finish: function () {
+    const data = jsPsych.data.get().values();
+    const batch = db.batch();
+    const collection = db.collection("participant_responses");
+
+    data.forEach((trial, index) => {
+      const docRef = collection.doc();
+      batch.set(docRef, {
+        participant_id: participant_id,
+        timestamp: new Date().toISOString(),
+        trial_index: index,
+        ...trial
+      });
+    });
+
+    batch.commit()
+      .then(() => {
+        console.log("✅ Data saved to Firebase.");
+      })
+      .catch(err => {
+        console.error("❌ Firebase error:", err);
+      });
+  }
 });
 
 
@@ -298,6 +312,7 @@ function createTrialWithRatingsAndRanking(scenario) {
             jsPsych.finishTrial({ ...scenario.data, responses: Object.fromEntries(formData.entries()) });
         });
     },
+//    on_finish: logToSheet,
   };
 }
 
@@ -308,53 +323,17 @@ const allCombinedTrials = randomizedScenarios.map(createTrialWithRatingsAndRanki
 // Add your instructions and then these trials to timeline
 let timeline = [];
 
-(async () => {
-  await loadFirebaseScripts();
-  const db = initFirebase();
+timeline.push(instructions_exp);
+timeline = timeline.concat(allCombinedTrials);
 
-  const participant_id = jsPsych.randomization.randomID(10);
-
-  // Inject db and id into each trial that logs
-  const wrappedTrials = allCombinedTrials.map(trial => {
-    const original_on_load = trial.on_load;
-    trial.on_load = function () {
-      if (original_on_load) original_on_load();
-
-      const original_finishTrial = jsPsych.finishTrial;
-      jsPsych.finishTrial = function (data) {
-        // Restore finishTrial to prevent duplicate wrap
-        jsPsych.finishTrial = original_finishTrial;
-
-        const trialData = {
-          participant_id,
-          scenario: data.scenario,
-          responses: data.responses,
-          timestamp: new Date().toISOString()
-        };
-
-        db.collection("participant_responses").add(trialData)
-          .then(() => {
-            original_finishTrial(data);
-          })
-          .catch(error => {
-            console.error("Firebase write error:", error);
-            original_finishTrial(data);
-          });
-      };
-    };
-    return trial;
-  });
-
-  let timeline = [instructions_exp, ...wrappedTrials, {
-    type: jsPsychHtmlKeyboardResponse,
-    stimulus: `
-      <h2>Thank you for participating!</h2>
-      <p>Your responses have been recorded.</p>
-      <p>You may now close this window.</p>
-    `,
-    choices: "NO_KEYS",
-    trial_duration: 5000
-  }];
-
-  jsPsych.run(timeline);
-})();
+// === Final Message ===
+timeline.push({
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: `
+    <h2>Thank you for participating!</h2>
+    <p>Your responses have been recorded.</p>
+    <p>You may now close this window.</p>
+  `,
+  choices: "NO_KEYS",
+  trial_duration: 5000
+});
