@@ -59,7 +59,7 @@ const instructions_exp = {
   stimulus: `
     <h2>Welcome to this experiment</h2>
     <p>In this study, you will be asked to imagine four different scenarios where you are presented with four job postings from companies looking to hire an employee.</p>
-    <p>Each job posting receives six different applications from individuals who have applied for the role. Your task is to read through each applicant profile, then rate how likely you are on a scale of 1-7 to shortlist each applicant for an interview and rank them based on how well you think they fit the position.</p> 
+    <p>Each job posting receives six different applications from individuals who have applied for the role. Your task is to read through each applicant profile, then rate how likely you are on a scale of 1-7 to select each applicant for an interview and rank them based on how well you think they fit the position.</p> 
     <p>This study will take approximately <strong>15 minutes</strong> to complete. Please respond as thoughtfully and accurately as possible.</p>
     <p>If you wish to stop at any point, simply close this page and your data will not be recorded.</p>
     <p>Press <strong>SPACE</strong> to begin the study.</p>
@@ -149,27 +149,27 @@ const eceScenario1 = {
   `,
   candidates: [
     {
-      name: "Jess (ECE, UofT)",
+      name: "Jess (ECE, University of Toronto)",
       description: `I have worked as a daycare supervisor in the city for the past five years, managing classroom dynamics, staff, and behavioural difficulties. When our center adopted a new play-based curriculum, I supported staff by facilitating planning sessions and sharing strategies that made the shift feel manageable and aligned with their teaching styles. As a supervisor I’ve also managed incidents between children involving disruptive behaviours during class time. By implementing firm and consistent expectations, I was able to prevent further outbursts.`
     },
     {
-      name: "Mary (ECE, UofT)",
+      name: "Mary (ECE, University of Toronto)",
       description: `For the past three years, I have worked as a staff lead at a preschool where I take pride in fostering a positive team culture rooted in accountability, communication, and respect. This focus on team culture has shaped how I support staff through change and new initiatives. As we adopted changes in the curriculum, I collaborated with staff to create simple templates and provide hands-on support. This helped reduce stress and misunderstanding and facilitated greater consistency across classrooms.`
     },
     {
-      name: "Sarah (ECE, UofT)",
+      name: "Sarah (ECE, University of Toronto)",
       description: `I have worked for four years as an educator at a childcare centre in Etobicoke, where I efficiently manage the classroom. I’ve supported classrooms facing disruptive behaviors by modeling calm, consistent responses and working closely with educators to develop shared strategies. When disagreements arise between children, I help them explore fair ways to share or take turns. I’ve found that encouraging empathy prevents miscommunication while teaching valuable social skills. I also support team dynamics by encouraging open dialogue and stepping in early to prevent issues from escalating. `
     },
     {
-      name: "Amy (BA, UofT)",
+      name: "Amy (BA, University of Toronto)",
       description: `I’ve spent the past three years working as a receptionist at a drop-in children’s program. During this time, I have interacted with and developed meaningful connections with families. I have observed educators as they led children’s activities and managed various behavioural challenges. I am currently pursuing a degree in Early Childhood Education and am eager to take the next step in this field. I would love the opportunity to apply my knowledge and gain hands-on experience working directly with children.`
     },
     {
-      name: "Alyssa (ECE, UofT)",
+      name: "Alyssa (ECE, University of Toronto)",
       description: `I have spent the last four years working as a preschool educator. To manage disruptive behaviors, I enjoy creating a calm and predictable learning environment. I stick to tried-and-true strategies that have worked well in the past for me. For example, when two children are arguing over a toy, I calmly step in to help them express their feelings and guide them toward finding a fair solution. I value open communication and always try to understand each child’s perspective.`
     },
     {
-      name: "Rebecca (ECE, UofT)",
+      name: "Rebecca (ECE, University of Toronto)",
       description: `I have three years of experience working as an educator at a learning centre in downtown Toronto. In that role, I guided children through daily activities to support their learning and development. I worked closely with children to build routines that encouraged engagement and confidence. For instance, I regularly led circle time activities, prompting children to participate in games and sing-alongs. Outside of work, I coach a youth soccer team and have received recognition for leading the most improved team.`
     }
   ]
@@ -185,27 +185,27 @@ const eceScenario2 = {
   `,
   candidates: [
     {
-      name: "Veronica (ECE, UBC)",
+      name: "Veronica (ECE, University of British Columbia)",
       description: `I have worked at a daycare in the city for the past four years. I’ve come to understand that every child has their own unique needs and establish rapport accordingly. For children who need more support, I provide one-on-one attention or adapt activities to cater to their level of development. I love speaking with parents about how their child’s day went, whether it was full of laughter or included a few bumps along the way.`
     },
     {
-      name: "Maya (ECE, UBC)",
+      name: "Maya (ECE, University of British Columbia)",
       description: `For the past three years, I have worked at a preschool where I feel honoured to be part of the children’s developmental milestones. I value the importance of clear communication, and I like to host a monthly ‘family morning’ where parents and children can join in on a circle time activity and parents chat informally about their child’s progress. Outside of work, I regularly take professional development courses that I can apply to my own role, as I strongly believe in the value of continual growth.`
     },
     {
-      name: "Clara (ECE, UBC)",
+      name: "Clara (ECE, University of British Columbia)",
       description: `For the past three years, I’ve worked as a private babysitter for two different families. In these roles, I focused on supporting emotional development by using practical strategies. When any of the children would get upset after losing a game or being told “no”, I would offer simple strategies like counting to ten or taking deep breaths.  I focus on incorporating evidence-based approaches into my work and enjoy staying up to date with current research to support children’s development.`
     },
     {
-      name: "Julia (BA, UBC)",
+      name: "Julia (BA, University of British Columbia)",
       description: `I spent the past two years working in toddler and preschool classrooms. In these roles, my main focus was helping to plan activities and maintain structured routines for the lead educators to follow. As an activity planner, I communicated effectively with lead educators to develop cohesive daily routines and have maintained contact with many of them even after my contract ended. I highly value continual growth and am always researching new activities that maximize children’s learning and health development.`
     },
     {
-      name: "Zoe (ECE, UBC)",
+      name: "Zoe (ECE, University of British Columbia)",
       description: `I have spent the last four years working as a play-based educator. My favourite part about being an educator is the novelty of each day. I love seeing where each child’s curiosity takes us, whether it’s coming up with a new science experiment or exploring a new art technique - whatever keeps everyone engaged and learning. I also have a strong interest in storytelling and music, which I often bring into the classroom to spark imagination and engage children in new ways.`
     },
     {
-      name: "Naomi (ECE, UBC)",
+      name: "Naomi (ECE, University of British Columbia)",
       description: `I have four years of experience working as a classroom assistant, helping implement learning activities and supporting daily routines. I make the effort to speak with parents informally during drop-off and pickup, and I appreciate how these interactions can help build trust over time. I’ve also volunteered at local community events, allowing me to collaborate with different age groups and support environments that bring people together. These are values I hope to bring into my work with children and their families.`
     }
   ]
@@ -223,7 +223,7 @@ function createTrialWithRatingsAndRanking(scenario) {
       <div style="margin-bottom: 30px;">
         <strong>${i + 1}. ${c.name}</strong><br>
         <p>${c.description}</p>
-        <label for="rating_${id}"><strong>How likely are you to shortlist this applicant for an interview? (1 = Very Unlikely, 7 = Very Likely)</strong></label><br>
+        <label for="rating_${id}"><strong>How likely are you to select this applicant for an interview? (1 = Very Unlikely, 7 = Very Likely)</strong></label><br>
         <input 
           type="range" 
           id="rating_${id}" 
