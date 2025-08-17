@@ -1,3 +1,11 @@
+var style = document.createElement('style');
+style.innerHTML = `
+  body {
+    font-size: 22px !important;
+  }
+`;
+document.head.appendChild(style);
+
 // Initialize Firebase (put at the top of experiment.js)
 const firebaseConfig = {
   apiKey: "AIzaSyBeS5cpBQ-hniexN4urdqMkMiGPKZiqj2k",
@@ -73,7 +81,7 @@ const ceoScenario1 = {
   jobDescription: `
     <h2>Job Posting: Chief Executive Officer (CEO)</h2>
     <p><strong>Location:</strong> Toronto, ON</p>
-    <p><strong>About the Company:</strong> NovaLink is a tech firm, with a team of 5000 employees, that builds smart software to help companies manage their supply chains. We’ve grown across North America and are now preparing to expand into Europe. At the same time, we’re dealing with a hostile takeover attempt from a U.S. competitor. We want to remain independent and grow internationally, without losing our focus or team stability. We are looking for a new CEO to help navigate these challenges and opportunities.</p>
+    <p><strong>About the Company:</strong> NovaLink is a tech firm with a team of 5000 employees that builds smart software to help companies manage their supply chains. We’ve grown across North America and are now preparing to expand into Europe. At the same time, we’re dealing with a hostile takeover attempt from a U.S. competitor. We want to remain independent and grow internationally, without losing our focus or team stability. We are looking for a new CEO to help navigate these challenges and opportunities.</p>
   `,
   candidates: [
     {
@@ -334,7 +342,10 @@ jsPsych.finishTrial(trialData);
 
 const allScenarios = [ceoScenario1, ceoScenario2, eceScenario1, eceScenario2];
 const randomizedScenarios = jsPsych.randomization.shuffle(allScenarios);
-const allCombinedTrials = randomizedScenarios.map(createTrialWithRatingsAndRanking);
+const allCombinedTrials = randomizedScenarios.map(scenario => {
+  const shuffledCandidates = jsPsych.randomization.shuffle(scenario.candidates);
+  return createTrialWithRatingsAndRanking({...scenario, candidates: shuffledCandidates });
+});
 
 // Add your instructions and then these trials to timeline
 let timeline = [];
