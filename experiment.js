@@ -66,10 +66,10 @@ const instructions_exp = {
   type: jsPsychHtmlKeyboardResponse,
   stimulus: `
     <h2>Welcome to this experiment</h2>
-    <p>In this study, you will be asked to imagine four different scenarios where you are presented with four job postings from companies looking to hire an employee.</p>
-    <p>Each job posting receives six different applications from individuals who have applied for the role. Your task is to read through each applicant profile, then rate how likely you are on a scale of 1-7 to select each applicant for an interview and rank them based on how well you think they fit the position.</p> 
+    <p>In this study, you will be asked to imagine a scenario where you are on a committee to help four different companies that are looking to hire an employee.</p>
+    <p>For each company, six applicants have been highlighted for further consideration. Your task is to read through the company's requirements and each applicant's profile, then rate how likely you are on a scale of 1-7 to select each applicant for an interview and rank them based on how well you think they fit the position.</p> 
     <p>This study will take approximately <strong>15 minutes</strong> to complete. Please respond as thoughtfully and accurately as possible.</p>
-    <p>If you wish to stop at any point, simply close this page and your data will not be recorded.</p>
+    <p>If you wish to stop at any point, simply close the window and your data will not be recorded.</p>
     <p>Press <strong>SPACE</strong> to begin the study.</p>
   `,
   choices: [' ']
@@ -249,21 +249,48 @@ function createTrialWithRatingsAndRanking(scenario) {
   }).join("");
 
   // Ranking input section
-  const rankingInputs = scenario.candidates.map(c => {
+const rankingInputs = scenario.candidates.map(c => {
     const id = c.name.replace(/\s+/g, '');
     return `
       <label for="rank_${id}">${c.name}:</label>
-      <input type="number" id="rank_${id}" name="rank_${id}" min="1" max="${candidateCount}" required><br><br>
+      <input 
+        type="number" 
+        id="rank_${id}" 
+        name="rank_${id}" 
+        min="1" 
+        max="${candidateCount}" 
+        required
+        style="
+          width: 50px; 
+          height: 30px; 
+          font-size: 17px; 
+          text-align: center; 
+          margin-bottom: 10px;
+        "
+      ><br><br>
     `;
-  }).join("");
+}).join("");
 
   const htmlBlock = `
     ${candidateSections}
     <hr>
-    <p><strong>Ranking Task:</strong> Please rank the applicants from 1 (best fit) to ${candidateCount} (least fit). Please assign a unique rank number to each applicant.</p>
-    ${rankingInputs}
-    <button id="customSubmit" type="button">Submit</button>
-    <div id="errorMsg" style="color:red; font-weight:bold;"></div>
+    <div style="
+        border: 2px solid #333;
+        padding: 20px;
+        border-radius: 10px;
+        width: 60%;
+        margin: 0 auto;
+        background-color: #f9f9f9;
+    ">
+        <p><strong>Ranking Task:</strong> Please rank the applicants from 1 (best fit) to ${candidateCount} (least fit). Please assign a unique rank number to each applicant.</p>
+        ${rankingInputs}
+        <button id="customSubmit" type="button" style="
+            font-size: 16px;
+            padding: 10px 20px;
+            margin-top: 10px;
+        ">Submit</button>
+        <div id="errorMsg" style="color:red; font-weight:bold;"></div>
+    </div>
   `;
 
   // Then in your trial object:
