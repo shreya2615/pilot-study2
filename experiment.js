@@ -3,8 +3,23 @@ style.innerHTML = `
   body {
     font-size: 22px !important;
   }
+
+  /* Make progress bar bigger */
+  #jspsych-progressbar-container {
+    height: 30px !important;       /* container height */
+    margin-bottom: 20px;           /* space below bar */
+  }
+  #jspsych-progressbar {
+    height: 30px !important;       /* thickness of the bar itself */
+    border-radius: 6px;            /* rounded corners */
+  }
+  #jspsych-progressbar-text {
+    font-size: 18px !important;    /* make percentage text bigger */
+    font-weight: bold;
+  }
 `;
 document.head.appendChild(style);
+
 
 // Initialize Firebase (put at the top of experiment.js)
 const firebaseConfig = {
